@@ -40,7 +40,7 @@ pipeline {
 */
  agent none
     stages {
-        stage('Back-end') {
+        stage('Back-end1') {
             agent {
                 docker { image 'maven:3.6.3' }
             }
@@ -48,7 +48,7 @@ pipeline {
                 sh 'mvn --version'
             }
         }
-        stage('Front-end') {
+        stage('Front-end1') {
             agent {
                 docker { image 'node:14.9' }
             }
