@@ -1,62 +1,62 @@
 pipeline {
-	/*
-	//agent any
-	agent { 
-		docker { 
-			//image 'maven:3.6.3'
-			image 'node:14.9'
-		} 
+	agent any
+	environment {
+		dockerHome = tool 'my-docker'
+		mavenHome = tool 'maven-3.6.3'
+		PATH = "$dockerHome/bin:$mavenHome/bin:$PATH"
 	}
-	stages {
-		stage('Build'){
+	stages{
+		stage('Checkout'){
 			steps{
-				//echo "build"
-				sh 'node --version'
+				sh 'mvn --version'
+				sh 'docker --version'
+				echo "Build"
+				echo "PATH - $PATH"
+				echo "BUILD_NUMBER - $env.BUILD_NUMBER"
+				echo "BUILD_DIR - $env.BUILD_DIR"
+				echo "BUILD_TAG - $env.BUILD_TAG"
+				echo "BUILD_URL - $env.BUILD_URL"
 			}
 		}
-		stage('test'){
+		stage('Compile'){
 			steps{
-				echo "test"
+				sh 'mvn clean compile'
 			}
 		}
-		stage('integration test'){
+		stage('Test'){
 			steps{
-				echo "integration test"
+				sh 'mvn test'
 			}
-		}		
+		}
+		stage('Integration Test'){
+			steps{
+				sh 'mvn failsafe:integration-test failsafe:verify'
+			}
+		}
+		stage('Package'){
+			steps{
+				sh 'mvn package -DskipTests'
+			}
+		}
+		stage('Build Docker Image'){
+			steps{
+				script{
+					dockerImage = docker.build("aakashgupta/currency-exchange-devops:${env.BUILD_TAG}")
+				}
+			}
+		}
+		stage('Push Docker Image'){
+			steps{
+				script{
+					docker.withRegistry('', 'dockerhub'){
+						dockerImage.push();
+						dockerImage.push('latest');
+					}
+				}
+			}
+		}
 	}
 
-	post {
-		always{
-			echo "always executed!"
-		}
-		success{
-			echo "Only when I am successful"
-		}
-		failure{
-			echo "Only when I am failure"
-		}
-	}
-*/
- agent none
-    stages {
-        stage('Back-end1') {
-            agent {
-                docker { image 'maven:3.6.3' }
-            }
-            steps {
-                sh 'mvn --version'
-            }
-        }
-        stage('Front-end1') {
-            agent {
-                docker { image 'node:14.9' }
-            }
-            steps {
-                sh 'node --version'
-            }
-        }
-    }
 	post {
 		always{
 			echo "always executed!"
