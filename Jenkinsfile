@@ -1,4 +1,5 @@
 pipeline {
+	/*
 	//agent any
 	agent { 
 		docker { 
@@ -6,16 +7,10 @@ pipeline {
 			image 'node:14.9'
 		} 
 	}
-	agent { 
-		docker { 
-			image 'maven:3.6.3'
-		} 
-	}
 	stages {
 		stage('Build'){
 			steps{
 				//echo "build"
-				sh 'mvn --version'
 				sh 'node --version'
 			}
 		}
@@ -31,6 +26,37 @@ pipeline {
 		}		
 	}
 
+	post {
+		always{
+			echo "always executed!"
+		}
+		success{
+			echo "Only when I am successful"
+		}
+		failure{
+			echo "Only when I am failure"
+		}
+	}
+*/
+ agent none
+    stages {
+        stage('Back-end') {
+            agent {
+                docker { image 'maven:3.6.3' }
+            }
+            steps {
+                sh 'mvn --version'
+            }
+        }
+        stage('Front-end') {
+            agent {
+                docker { image 'node:14.9' }
+            }
+            steps {
+                sh 'node --version'
+            }
+        }
+    }
 	post {
 		always{
 			echo "always executed!"
